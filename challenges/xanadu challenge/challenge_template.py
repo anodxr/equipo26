@@ -52,7 +52,7 @@ def optimize_circuit(hamiltonian):
     
     ### Solution Template
 
-    dev = qml.device("xanaduchallenge.QuantumSimulator", wires=WIRES) 
+    dev = qml.device("default.qubit", wires=WIRES) 
 
     circuit = qml.QNode(variational_circuit, dev)
 
@@ -60,14 +60,15 @@ def optimize_circuit(hamiltonian):
 
     # Initialize the parameters randomly
     params = np.random.uniform(0, 2*np.pi, size=NUM_PARAMETERS)
-
-    # Define the cost function as the negative expectation value of the Hamiltonian
+    print("Params:", params)
+    
+    # Define the cost function 
     def cost(params):
-        return -circuit(params, hamiltonian)
+        return circuit(params, hamiltonian)
 
     # Use a gradient-based optimizer to minimize the cost function
     opt = qml.GradientDescentOptimizer(stepsize=0.1)
-    steps = 100 # Number of optimization steps
+    steps = 400 # Number of optimization steps
     for i in range(steps):
         params = opt.step(cost, params)
         print(f"Step {i+1}: Cost = {cost(params)}")
@@ -75,3 +76,25 @@ def optimize_circuit(hamiltonian):
     # Return the optimized value of the QNode
     return circuit(params, hamiltonian)
 
+# Test case 1
+test_input = [
+    0.863327072347624, 0.0167108057202516, 0.07991447085492759, 0.0854049026262154,
+    0.0167108057202516, 0.8237963773906136, -0.07695947154193797, 0.03131548733285282,
+    0.07991447085492759, -0.07695947154193795, 0.8355417021014687, -0.11345916130631205,
+    0.08540490262621539, 0.03131548733285283, -0.11345916130631205, 0.758156886827099
+]
+print("Input 1:", test_input)
+expected_output = optimize_circuit(test_input)
+print("Output 1:", expected_output)
+
+
+# Test case 2
+test_input = [
+    0.32158897156285354,-0.20689268438270836,0.12366748295758379,-0.11737425017261123,
+    -0.20689268438270836,0.7747346055276305,-0.05159966365446514,0.08215539696259792,
+    0.12366748295758379,-0.05159966365446514,0.5769050487087416,0.3853362904758938,
+    -0.11737425017261123,0.08215539696259792,0.3853362904758938,0.3986256655167206
+]
+print("Input 2:", test_input)
+expected_output = optimize_circuit(test_input)
+print("Output 2:", expected_output)
