@@ -52,11 +52,26 @@ def optimize_circuit(hamiltonian):
     
     ### Solution Template
 
-    dev = # Initialize the device.
+    dev = qml.device("xanaduchallenge.QuantumSimulator", wires=WIRES) 
 
-    circuit = # Instantiate the QNode from variational_circuit.
+    circuit = qml.QNode(variational_circuit, dev)
 
     # Write your code to minimize the circuit
 
-    return # Return the value of the minimized QNode
+    # Initialize the parameters randomly
+    params = np.random.uniform(0, 2*np.pi, size=NUM_PARAMETERS)
+
+    # Define the cost function as the negative expectation value of the Hamiltonian
+    def cost(params):
+        return -circuit(params, hamiltonian)
+
+    # Use a gradient-based optimizer to minimize the cost function
+    opt = qml.GradientDescentOptimizer(stepsize=0.1)
+    steps = 100 # Number of optimization steps
+    for i in range(steps):
+        params = opt.step(cost, params)
+        print(f"Step {i+1}: Cost = {cost(params)}")
+
+    # Return the optimized value of the QNode
+    return circuit(params, hamiltonian)
 
